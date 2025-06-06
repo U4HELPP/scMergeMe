@@ -38,7 +38,7 @@ check_10x_output_dir <- function(path) {
 
 
 ui <- dashboardPage(
-  dashboardHeader(title = "Single Cell Merger App"),
+  dashboardHeader(title = "scMergeMe: Self-Service scRNASeq Sample Merge App"),
   dashboardSidebar(
     sidebarMenu(
       menuItem("1. Select Samples", tabName = "sample_selection", icon = icon("mouse-pointer")),
@@ -123,7 +123,7 @@ ui <- dashboardPage(
                         choices = c("LogNormalize", "SCT"), selected = "LogNormalize"), # Default changed
             selectInput("merge_type", "Merge Type",
                         choices = c("simple", "integration"), selected = "simple"),
-            checkboxInput("parallel_checkbox", "Enable Parallelization", value = FALSE),
+            checkboxInput("parallel_checkbox", "Enable Parallelization", value = TRUE),
             selectInput("species_select", "Species for Cell Cycle Scoring",
                         choices = c("human", "mouse"), selected = "human"),
             checkboxInput("save_h5_checkbox", "Save Merged Seurat Object as .h5Seurat (instead of .RData)", value = FALSE)
@@ -135,8 +135,8 @@ ui <- dashboardPage(
             status = "primary",
             solidHeader = TRUE,
             width = 6,
-            checkboxInput("filter_cells_checkbox", "Filter to only selected cells (requires Cells2Keep column in sample sheet)", value = FALSE),
-            checkboxInput("ambient_rna_adjust_checkbox", "Adjust for Ambient RNA Contamination (requires RunSoupX and raw10Xdata columns)", value = FALSE),
+            checkboxInput("filter_cells_checkbox", "Filter to only selected cells (requires Cells2Keep column in sample sheet)", value = TRUE),
+            checkboxInput("ambient_rna_adjust_checkbox", "Adjust for Ambient RNA Contamination (requires RunSoupX and raw10Xdata columns, only adjusts samples where RunSoupX is 1)", value = TRUE),
             sliderInput("downsample_percentage", "Downsample Percentage (Keep % of cells from each sample)", min = 0, max = 100, value = 100),
             numericInput("num_anchors_input", "Number of Anchor Genes (for integration merge type)", value = 2000, min = 1),
             checkboxInput("regress_cell_cycle_checkbox", "Regress out Cell Cycle Differences", value = FALSE),
@@ -337,7 +337,7 @@ server <- function(input, output, session) {
   all_params <- reactive({
     params <- list(
       runid_user = input$run_id_input,
-      outdir = input$output_dir_input,
+      outdir = paste0(input$output_dir_input,"/",input$run_id_input),
       mem_limit_gb = input$mem_limit_input,
       num_cores = input$num_cores_input,
       normalization = input$normalization_type,
@@ -423,7 +423,7 @@ server <- function(input, output, session) {
     if (!dir.exists(final_outdir)) {
       tryCatch({
         dir.create(final_outdir, recursive = TRUE)
-        showNotification(paste0("Created output directory: ", final_outdir), type = "info")
+        showNotification(paste0("Created output directory: ", final_outdir), type = "message")
       }, error = function(e) {
         showNotification(paste0("Error creating output directory: ", e$message), type = "error")
         return()
