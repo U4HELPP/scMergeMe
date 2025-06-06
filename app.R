@@ -5,6 +5,7 @@ library(DT)           # For interactive tables
 library(shinyWidgets) # For enhanced select input (pickerInput)
 library(readr)        # For efficient CSV reading
 library(stringr)      # For string manipulation
+library(dplyr)
 
 # --- Paths ---
 MASTER_SAMPLE_LIST_PATH <- "/lustre/home/harrell_lab/scRNASeq/config_slurm/Master_Sample_List.csv"
@@ -56,7 +57,7 @@ ui <- dashboardPage(
             title = "Available Samples",
             status = "primary",
             solidHeader = TRUE,
-            width = 6,
+            width = 12,
             # Use pickerInput for multi-selection with search
             pickerInput(
               inputId = "available_samples_picker",
@@ -80,7 +81,7 @@ ui <- dashboardPage(
             title = "Samples to be Merged",
             status = "success",
             solidHeader = TRUE,
-            width = 6,
+            width = 12,
             helpText("Samples added here will be included in the merge. Click 'Remove' to deselect."),
             DTOutput("selected_samples_dt"),
             actionButton("clear_selected_samples", "Clear All Selected Samples", icon = icon("trash"))
@@ -178,6 +179,16 @@ ui <- dashboardPage(
 )
 
 
+
+
+
+
+
+
+
+
+
+
 server <- function(input, output, session) {
   
   # --- Reactive Values ---
@@ -210,7 +221,7 @@ server <- function(input, output, session) {
   output$full_sample_list_dt <- renderDT({
     req(master_sample_data())
     # Only display relevant columns
-    display_cols <- c("PDX", "SampleName", "Sex", "Primary Cancer Type", "Acquired Resistance", "Metastatic Sample Tissue", "RunSoupX")
+    display_cols <- c("PDXSource", "SampleName", "Sex", "PrimaryCancerType", "AcquiredResistance", "MetastaticSampleTissue", "RunSoupX")
     DT::datatable(
       master_sample_data()[, display_cols],
       options = list(pageLength = 5, scrollX = TRUE),
@@ -251,7 +262,7 @@ server <- function(input, output, session) {
       return(NULL)
     }
     # Display selected columns for review, add a 'Remove' button column
-    display_cols <- c("PDX", "SampleName", "Sex", "Primary Cancer Type", "Acquired Resistance", "Metastatic Sample Tissue", "RunSoupX")
+    display_cols <- c("PDXSource", "SampleName", "Sex", "PrimaryCancerType", "AcquiredResistance", "MetastaticSampleTissue", "RunSoupX")
     df <- selected_samples_for_merge()[, display_cols, drop = FALSE]
     # Add a 'Remove' button column
     df$Remove <- paste0('<button class="btn btn-danger btn-sm remove_btn" data-id="', df$SampleName, '">Remove</button>')
@@ -484,19 +495,20 @@ server <- function(input, output, session) {
         SampleName,
         DataType,
         SamplePath,
-        Source,
-        MouseDepletion = `Mouse Number`, # Assuming this is the correct mapping
-        AquiredResistance = `Acquired Resistance`,
+        PDXSource,
+        MouseDepletion,
+        AcquiredResistance,
         Sex,
-        TissueType = `Metastatic Sample Tissue`,
-        Pipeline = `Pipeline`, # Assuming master list has 'Pipeline' column
-        BatchID = `Batch ID`,
+        PrimaryCancerType,
+        MetastaticSampleTissue,
+        Pipeline, 
+        BatchID,
         Cells2Keep,
         raw10Xdata,
         RunSoupX
       )
     write_csv(sample_sheet_df, sample_sheet_path)
-    showNotification(paste0("Sample sheet generated at: ", sample_sheet_path), type = "success")
+    showNotification(paste0("Sample sheet generated at: ", sample_sheet_path), type = "message")
     
     # 4. Generate SLURM Bash Script
     slurm_script_filename <- paste0("06_slurm_", params$runid_user, "_", params$species, "_", get_yymmdd(), ".sh")
@@ -543,7 +555,7 @@ server <- function(input, output, session) {
     )
     writeLines(bash_script_content, slurm_script_path)
     Sys.chmod(slurm_script_path, mode = "0755") # Make executable
-    showNotification(paste0("SLURM script generated at: ", slurm_script_path), type = "success")
+    showNotification(paste0("SLURM script generated at: ", slurm_script_path), type = "message")
     
     # 5. Submit Job
     submit_command <- paste0("sbatch ", slurm_script_path)
@@ -565,15 +577,15 @@ server <- function(input, output, session) {
       div(
         p(HTML(paste0("Your SLURM job has been submitted!"))),
         p(HTML(paste0("<strong>Job ID:</strong> ", job_id))),
-        p(HTML(paste0("You can check job status in your terminal using: <code>squeue -u $USER</code> (replace $USER with your username)")),
-          p(HTML(paste0("Output Log File: <code>", file.path(final_outdir, paste0("06_", params$runid_user, "_", get_yymmdd(), "_output.log")), "</code>")),
-            p(HTML(paste0("Error Log File: <code>", file.path(final_outdir, paste0("06_", params$runid_user, "_", get_yymmdd(), "_error.log")), "</code>")),
-              p("You can monitor the logs using `tail -f` (e.g., `tail -f <output_log_file>`)."),
-              p("The Shiny App does not need to remain open to monitor the job progress on the cluster.")
-            )
+        p(HTML(paste0("You can check job status in your terminal using: <code>squeue -u $USER</code> (replace $USER with your username)"))),
+        p(HTML(paste0("Output Log File: <code>", file.path(final_outdir, paste0("06_", params$runid_user, "_", get_yymmdd(), "_output.log")), "</code>"))),
+        p(HTML(paste0("Error Log File: <code>", file.path(final_outdir, paste0("06_", params$runid_user, "_", get_yymmdd(), "_error.log")), "</code>"))),
+        p("You can monitor the logs using `tail -f` (e.g., `tail -f <output_log_file>`)."),
+        p("The Shiny App does not need to remain open to monitor the job progress on the cluster.")
+      )
     })
     
-    showNotification("Job submitted successfully!", type = "success")
+    showNotification("Job submitted successfully!", type = "message")
     
   }) # End observeEvent submit_job
   
