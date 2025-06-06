@@ -8,25 +8,25 @@
 
 ## Table of Contents
 
-1.  [Purpose of the Application](#purpose-of-the-application)
-2.  [Features](#features)
-3.  [Installation](#installation)
-    * [Prerequisites](#prerequisites)
-    * [R Package Dependencies](#r-package-dependencies)
-    * [Configuration Files](#configuration-files)
-4.  [Usage](#usage)
-    * [Running the Application](#running-the-application)
-    * [1. Select Samples Tab](#1-select-samples-tab)
-    * [2. Configure Merge Tab](#2-configure-merge-tab)
-    * [3. Run Merge Tab](#3-run-merge-tab)
-5.  [Key File Structure](#key-file-structure)
-6.  [Troubleshooting / Known Issues](#troubleshooting--known-issues)
-7.  [Contributing](#contributing)
-8.  [License](#license)
+- [Purpose of the Application](#purpose-of-the-application)
+- [Features](#features)
+- [Installation](#installation)
+   - [Prerequisites](#prerequisites)
+   - [R Package Dependencies](#r-package-dependencies)
+   - [Configuration Files](#configuration-files)
+- [Usage](#usage)
+   - [Running the Application](#running-the-application)
+   - [Step 1. Select Samples Tab](#step-1-select-samples-tab)
+   - [Step 2. Configure Merge Tab](#step-2-configure-merge-tab)
+   - [Step 3. Run Merge Tab](#step-3-run-merge-tab)
+- [Key File Structure](#key-file-structure)
+- [Troubleshooting / Known Issues](#troubleshooting--known-issues)
+- [Contributing](#contributing)
+- [License](#license)
 
 ---
 
-## 1. Purpose of the Application
+## Purpose of the Application
 
 This Shiny R application provides a user-friendly graphical interface to streamline the process of merging single-cell RNA-seq datasets. It simplifies the setup and submission of complex Seurat merge jobs on a SLURM-managed cluster, allowing users to select samples from a master list, configure various bioinformatics parameters, and generate/submit the necessary scripts without direct command-line interaction for each step.
 
@@ -40,7 +40,7 @@ The application automates:
 
 ---
 
-## 2. Features
+## Features
 
 * **Interactive Sample Selection:** Browse and select multiple samples from a pre-defined master list using a searchable picker interface.
 * **Dynamic Sample Management:** Add and remove samples from the merge list on the fly.
@@ -60,7 +60,7 @@ The application automates:
 
 ---
 
-## 3. Installation
+## Installation
 
 ### Prerequisites
 
@@ -108,7 +108,7 @@ This application relies on two external files at specific paths. You **must** en
 
 ---
 
-## 4. Usage
+## Usage
 
 ### Running the Application
 
@@ -123,7 +123,7 @@ This application relies on two external files at specific paths. You **must** en
     shiny::runApp()
     ```
 
-### 1. Select Samples Tab
+### Step 1) Select Samples Tab
 
 This is your starting point for choosing the samples you wish to merge.
 
@@ -137,7 +137,7 @@ This is your starting point for choosing the samples you wish to merge.
     * The "Clear All Selected Samples" button will empty the entire merge list and return all samples to the "Available Samples" picker.
 * **Sample Selection Status:** Provides a quick count of selected samples and prompts if more are needed.
 
-### 2. Configure Merge Tab
+### Step 2) Configure Merge Tab
 
 In this tab, you define all the parameters for your Seurat merge job.
 
@@ -162,7 +162,7 @@ In this tab, you define all the parameters for your Seurat merge job.
 * **Optional Input Files:**
     * Paths to external files for `Features List`, `Barcodes to Exclude`, or `Barcodes to Keep`. Leave blank if not needed.
 
-### 3. Run Merge Tab
+### Step 3) Run Merge Tab
 
 This tab provides a final summary and allows you to submit your job.
 
@@ -178,7 +178,7 @@ This tab provides a final summary and allows you to submit your job.
 
 ---
 
-## 5. Key File Structure
+## Key File Structure
 
 .
 
@@ -192,7 +192,7 @@ This tab provides a final summary and allows you to submit your job.
 
 ---
 
-## 6. Troubleshooting / Known Issues
+## Troubleshooting / Known Issues
 
 * **"object 'dplyr::filter' not found" or similar for `%>%`:** Ensure `library(dplyr)` is included at the top of your `app.R` file.
 * **"object 'SampleName' not found" or other column errors:** Double-check that the column names in your `Master_Sample_List.csv` exactly match what's expected by the app (case-sensitive!).
@@ -200,13 +200,13 @@ This tab provides a final summary and allows you to submit your job.
 
 ---
 
-## 7. Contributing
+## Contributing
 
 Feel free to open issues or submit pull requests for any improvements or bug fixes.
 
 ---
 
-## 8. License
+## License
 
 This application is licensed under the **GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007**.
 
