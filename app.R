@@ -209,7 +209,7 @@ server <- function(input, output, session) {
       updatePickerInput(
         session = session,
         inputId = "available_samples_picker",
-        choices = setNames(data$SampleName, data$SampleName) # Both value and label are SampleName for simplicity
+        choices = setNames(sort(data$SampleName), sort(data$SampleName)) # Both value and label are SampleName for simplicity
       )
     }, error = function(e) {
       showNotification(paste("Error loading master sample list:", e$message), type = "error")
@@ -220,16 +220,18 @@ server <- function(input, output, session) {
   # --- Display Full Sample List (for reference) ---
   output$full_sample_list_dt <- renderDT({
     req(master_sample_data())
-    # Only display relevant columns
+    # Only display relevant columns and sort by SampleName
     display_cols <- c("PDXSource", "SampleName", "Sex", "PrimaryCancerType", "AcquiredResistance", "MetastaticSampleTissue", "RunSoupX")
+    
     DT::datatable(
-      master_sample_data()[, display_cols],
+      master_sample_data() %>%
+        dplyr::arrange(SampleName) %>% # <-- sort by SampleName
+        dplyr::select(all_of(display_cols)), # Using all_of for robust column selection
       options = list(pageLength = 5, scrollX = TRUE),
       selection = 'none',
       rownames = FALSE
     )
   }, server = FALSE) # Use server=FALSE for smaller datasets, otherwise server=TRUE
-  
   # --- 2. Sample Selection Logic ---
   observeEvent(input$add_selected_samples, {
     req(input$available_samples_picker) # Ensure some samples are selected in the picker
@@ -249,7 +251,7 @@ server <- function(input, output, session) {
       updatePickerInput(
         session = session,
         inputId = "available_samples_picker",
-        choices = setNames(remaining_choices$SampleName, remaining_choices$SampleName),
+        choices = setNames(sort(remaining_choices$SampleName), sort(remaining_choices$SampleName)),
         selected = character(0) # Clear selected items in picker
       )
     }
@@ -294,7 +296,7 @@ server <- function(input, output, session) {
       updatePickerInput(
         session = session,
         inputId = "available_samples_picker",
-        choices = setNames(remaining_choices$SampleName, remaining_choices$SampleName),
+        choices = setNames(sort(remaining_choices$SampleName), sort(remaining_choices$SampleName)),
         selected = character(0) # Clear selected items in picker
       )
     }
@@ -308,7 +310,7 @@ server <- function(input, output, session) {
     updatePickerInput(
       session = session,
       inputId = "available_samples_picker",
-      choices = setNames(all_master_samples$SampleName, all_master_samples$SampleName),
+      choices = setNames(sort(all_master_samples$SampleName), sort(all_master_samples$SampleName)),
       selected = character(0) # Clear selected items in picker
     )
   })
