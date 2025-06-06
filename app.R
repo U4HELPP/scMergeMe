@@ -594,4 +594,4 @@ server <- function(input, output, session) {
 } # End server function
 
 # Run the application
-# shinyApp(ui = ui, server = server) # This line would be at the very end of app.R
+shinyApp(ui = ui, server = server) # This line would be at the very end of app.R
