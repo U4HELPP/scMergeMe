@@ -213,4 +213,7 @@ Feel free to open issues or submit pull requests for any improvements or bug fix
 
 ## 8. License
 
-[Consider adding a license, e.g., MIT, Apache 2.0, etc.]
+This application is licensed under the **GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007**.
+
+You can find the full text of the GNU General Public License v3 at:  
+[https://www.gnu.org/licenses/gpl-3.0.html](https://www.gnu.org/licenses/gpl-3.0.html)
