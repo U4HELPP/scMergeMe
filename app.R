@@ -38,7 +38,7 @@ check_10x_output_dir <- function(path) {
 
 
 ui <- dashboardPage(
-  dashboardHeader(title = "scMergeMe: Self-Service scRNASeq Sample Merge App"),
+  dashboardHeader(title = "scMergeMe"),
   dashboardSidebar(
     sidebarMenu(
       menuItem("1. Select Samples", tabName = "sample_selection", icon = icon("mouse-pointer")),
@@ -221,7 +221,7 @@ server <- function(input, output, session) {
   output$full_sample_list_dt <- renderDT({
     req(master_sample_data())
     # Only display relevant columns and sort by SampleName
-    display_cols <- c("PDXSource", "SampleName", "Sex", "PrimaryCancerType", "AcquiredResistance", "MetastaticSampleTissue", "RunSoupX")
+    display_cols <- c("PDXSource", "SampleName", "Sex", "PrimaryCancerType", "AcquiredResistance", "MetastaticSampleTissue",  "CellRangerVersion", "RunSoupX")
     
     DT::datatable(
       master_sample_data() %>%
@@ -264,7 +264,7 @@ server <- function(input, output, session) {
       return(NULL)
     }
     # Display selected columns for review, add a 'Remove' button column
-    display_cols <- c("PDXSource", "SampleName", "Sex", "PrimaryCancerType", "AcquiredResistance", "MetastaticSampleTissue", "RunSoupX")
+    display_cols <- c("PDXSource", "SampleName", "Sex", "PrimaryCancerType", "AcquiredResistance", "MetastaticSampleTissue", "CellRangerVersion", "RunSoupX")
     df <- selected_samples_for_merge()[, display_cols, drop = FALSE]
     # Add a 'Remove' button column
     df$Remove <- paste0('<button class="btn btn-danger btn-sm remove_btn" data-id="', df$SampleName, '">Remove</button>')
@@ -504,6 +504,7 @@ server <- function(input, output, session) {
         PrimaryCancerType,
         MetastaticSampleTissue,
         Pipeline, 
+        CellRangerVersion, 
         BatchID,
         Cells2Keep,
         raw10Xdata,
