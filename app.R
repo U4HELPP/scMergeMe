@@ -1,11 +1,25 @@
 # Global Variables and Libraries (to be placed at the top of app.R or in global.R)
-library(shiny)
-library(shinydashboard) # For a more structured UI
-library(DT)           # For interactive tables
-library(shinyWidgets) # For enhanced select input (pickerInput)
-library(readr)        # For efficient CSV reading
-library(stringr)      # For string manipulation
-library(dplyr)
+
+# --- Package Installation and Loading ---
+# List of required packages
+required_packages <- c(
+  "shiny",
+  "shinydashboard",
+  "DT",
+  "shinyWidgets",
+  "readr",
+  "stringr",
+  "dplyr"
+)
+
+# Check if packages are installed and load them, otherwise install and load
+for (pkg in required_packages) {
+  if (!requireNamespace(pkg, quietly = TRUE)) {
+    message(paste("Installing package:", pkg))
+    install.packages(pkg, dependencies = TRUE)
+  }
+  library(pkg, character.only = TRUE)
+}
 
 # --- Paths ---
 MASTER_SAMPLE_LIST_PATH <- "/lustre/home/harrell_lab/scRNASeq/config_slurm/Master_Sample_List.csv"
@@ -338,8 +352,8 @@ server <- function(input, output, session) {
   # Reactive expression to gather all parameters and validate
   all_params <- reactive({
     params <- list(
-      runid_user = input$run_id_input,
-      outdir = paste0(input$output_dir_input,"/",input$run_id_input),
+      runid_user = paste0(input$run_id_input, "_", get_yymmdd()),
+      outdir = paste0(input$output_dir_input,"/",input$run_id_input, "_", get_yymmdd(),"/"),
       mem_limit_gb = input$mem_limit_input,
       num_cores = input$num_cores_input,
       normalization = input$normalization_type,
@@ -378,7 +392,7 @@ server <- function(input, output, session) {
     summary_text <- paste0(
       "--- Merge Job Summary ---\n",
       "Number of Samples Selected: ", n_samples, "\n",
-      "Proposed Final Run ID: ", params$runid_user, "_", get_yymmdd(), "\n",
+      "Proposed Final Run ID: ", params$runid_user, "\n",
       "Output Directory: ", params$outdir, "\n",
       "SLURM Memory Limit: ", params$mem_limit_gb, "G\n",
       "Cores for Job: ", params$num_cores, "\n",
@@ -487,7 +501,7 @@ server <- function(input, output, session) {
     }
     
     # 3. Generate Sample Sheet
-    sample_sheet_filename <- paste0(params$runid_user, "_", get_yymmdd(), "_sample_sheet.csv")
+    sample_sheet_filename <- paste0(params$runid_user, "_sample_sheet.csv")
     sample_sheet_path <- file.path(final_outdir, sample_sheet_filename)
     
     # Prepare data frame for sample sheet
@@ -519,7 +533,7 @@ server <- function(input, output, session) {
     
     # Build Rscript arguments
     rscript_args <- c(
-      paste0("-r ", params$runid_user, "_", get_yymmdd()),
+      paste0("-r ", params$runid_user),
       paste0("-o ", final_outdir),
       paste0("-c ", sample_sheet_path),
       paste0("-i ", params$normalization),
@@ -543,8 +557,8 @@ server <- function(input, output, session) {
     bash_script_content <- c(
       "#!/bin/bash",
       paste0("#SBATCH --job-name Merge_", params$runid_user), # Make job name more specific
-      paste0("#SBATCH --output ", file.path(final_outdir, paste0("06_", params$runid_user, "_", get_yymmdd(), "_output.log"))),
-      paste0("#SBATCH --error ", file.path(final_outdir, paste0("06_", params$runid_user, "_", get_yymmdd(), "_error.log"))),
+      paste0("#SBATCH --output ", file.path(final_outdir, paste0("06_", params$runid_user, "_output.log"))),
+      paste0("#SBATCH --error ", file.path(final_outdir, paste0("06_", params$runid_user, "_error.log"))),
       paste0("#SBATCH --cpus-per-task ", params$num_cores),
       paste0("#SBATCH --mem ", params$mem_limit_gb, "G"),
       "",
@@ -581,8 +595,8 @@ server <- function(input, output, session) {
         p(HTML(paste0("Your SLURM job has been submitted!"))),
         p(HTML(paste0("<strong>Job ID:</strong> ", job_id))),
         p(HTML(paste0("You can check job status in your terminal using: <code>squeue -u $USER</code> (replace $USER with your username)"))),
-        p(HTML(paste0("Output Log File: <code>", file.path(final_outdir, paste0("06_", params$runid_user, "_", get_yymmdd(), "_output.log")), "</code>"))),
-        p(HTML(paste0("Error Log File: <code>", file.path(final_outdir, paste0("06_", params$runid_user, "_", get_yymmdd(), "_error.log")), "</code>"))),
+        p(HTML(paste0("Output Log File: <code>", file.path(final_outdir, paste0("06_", params$runid_user, "_output.log")), "</code>"))),
+        p(HTML(paste0("Error Log File: <code>", file.path(final_outdir, paste0("06_", params$runid_user, "_error.log")), "</code>"))),
         p("You can monitor the logs using `tail -f` (e.g., `tail -f <output_log_file>`)."),
         p("The Shiny App does not need to remain open to monitor the job progress on the cluster.")
       )
