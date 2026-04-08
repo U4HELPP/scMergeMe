@@ -1,8 +1,10 @@
 # scMergeMe: A Single-Cell RNA-Seq Data Merger App
 
 **Author:** Amy Olex
-**Date:** June 2025
-**Collaboration Statement:** This application was designed in collaboration with large language models to assist in bioinformatics software engineering tasks.
+
+**Date:** April 8, 2026
+
+**Generative AI Statement:** This application was designed in collaboration with large language models (Gemini Pro 2025 and Claude Opus 4.6) to assist in bioinformatics software engineering tasks.
 
 ---
 
