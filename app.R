@@ -150,7 +150,7 @@ ui <- dashboardPage(
             selectInput("normalization_type", "Normalization Type",
                         choices = c("LogNormalize", "SCT"), selected = "LogNormalize"), # Default changed
             selectInput("merge_type", "Merge Type",
-                        choices = c("simple", "integration"), selected = "simple"),
+                        choices = c("simple", "harmony", "integration"), selected = "simple"),
             checkboxInput("parallel_checkbox", "Enable Parallelization", value = TRUE),
             selectInput("species_select", "Species for Cell Cycle Scoring",
                         choices = c("human", "mouse"), selected = "human"),
@@ -269,7 +269,7 @@ server <- function(input, output, session) {
   output$full_sample_list_dt <- renderDT({
     req(master_sample_data())
     # Only display relevant columns and sort by SampleName
-    display_cols <- c("PDXSource", "SampleName", "Sex", "PrimaryCancerType", "AcquiredResistance", "MetastaticSampleTissue",  "CellRangerVersion", "RunSoupX")
+    display_cols <- c("PDXSource", "SampleName", "Sex", "PrimaryCancerType", "AcquiredResistance", "Treatment", "MetastaticSampleTissue",  "CellRangerVersion", "RunSoupX")
     
     DT::datatable(
       master_sample_data() %>%
@@ -566,13 +566,14 @@ server <- function(input, output, session) {
     slurm_script_path <- file.path(final_outdir, slurm_script_filename)
     
     # Build Rscript arguments
+    
     rscript_args <- c(
       paste0("-r ", params$runid_user),
       paste0("-o ", final_outdir),
       paste0("-c ", sample_sheet_path),
-      paste0("-i ", params$normalization),
-      paste0("-t ", params$merge_type)
+      paste0("-i ", params$normalization)
     )
+    if (params$merge_type == "harmony") { rscript_args <- c(rscript_args, "--harmony") } else { c(rscript_args, paste0("-t ", params$merge_type)) }
     if (params$parallel) { rscript_args <- c(rscript_args, "--parallel") }
     rscript_args <- c(rscript_args, paste0("-n ", params$num_cores)) # Use the user-defined cores
     if (params$filter) { rscript_args <- c(rscript_args, "--filter") }
