@@ -55,17 +55,31 @@ ui <- dashboardPage(
   dashboardHeader(title = "scMergeMe"),
   dashboardSidebar(
     sidebarMenu(
-      menuItem("1. Select Samples", tabName = "sample_selection", icon = icon("mouse-pointer")),
-      menuItem("2. Configure Merge", tabName = "merge_config", icon = icon("cogs")),
-      menuItem("3. Run Merge", tabName = "run_merge", icon = icon("play-circle"))
+      menuItem("1. Settings", tabName = "settings", icon = icon("user-gear")),
+      menuItem("2. Select Samples", tabName = "sample_selection", icon = icon("mouse-pointer")),
+      menuItem("3. Configure Merge", tabName = "merge_config", icon = icon("cogs")),
+      menuItem("4. Run Merge", tabName = "run_merge", icon = icon("play-circle"))
     )
   ),
   dashboardBody(
     tabItems(
-      # --- Tab 1: Sample Selection ---
+      # --- Tab 1: Settings ---
+      tabItem(
+        tabName = "settings",
+        h2("1. Select Master Sample Sheet"),
+        textInput("master_list_path", 
+                  "Path to Master Sample List CSV",
+                  value = "/lustre/home/harrell_lab/scRNASeq/config_slurm/Master_Sample_List.csv"),
+        textInput("merge_script_path", 
+                  "Path to Seurat Merge R Script",
+                  value = "/lustre/home/harrell_lab/src/WCCTR_RNASeq_Pipeline/SingleCell/SeuratMerge_100322.R"),
+        actionButton("reload_master_list", "Load/Reload Sample List", icon = icon("refresh"))
+      ),
+      
+      # --- Tab 2: Sample Selection ---
       tabItem(
         tabName = "sample_selection",
-        h2("1. Select Samples for Merging"),
+        h2("2. Select Samples for Merging"),
         fluidRow(
           box(
             title = "Available Samples",
@@ -112,10 +126,10 @@ ui <- dashboardPage(
         )
       ),
       
-      # --- Tab 2: Configure Merge Parameters ---
+      # --- Tab 3: Configure Merge Parameters ---
       tabItem(
         tabName = "merge_config",
-        h2("2. Configure Merge Parameters"),
+        h2("3. Configure Merge Parameters"),
         fluidRow(
           box(
             title = "Basic Run Details",
@@ -168,10 +182,10 @@ ui <- dashboardPage(
         )
       ),
       
-      # --- Tab 3: Run Merge & Output ---
+      # --- Tab 4: Run Merge & Output ---
       tabItem(
         tabName = "run_merge",
-        h2("3. Run Merge Job"),
+        h2("4. Run Merge Job"),
         fluidRow(
           box(
             title = "Review & Submit",
@@ -230,6 +244,26 @@ server <- function(input, output, session) {
       master_sample_data(NULL) # Set to NULL if loading fails
     })
   }, once = TRUE)
+  
+  # --- 1. Re-load Master Sample List on Button Click ---
+  observeEvent(input$reload_master_list, {
+    req(input$master_list_path)
+    path <- input$master_list_path
+    if (!file.exists(path)) {
+      showNotification(paste("File not found:", path), type = "error")
+      return()
+    }
+    tryCatch({
+      data <- read_csv(path, show_col_types = FALSE)
+      master_sample_data(data)
+      updatePickerInput(session, "available_samples_picker",
+                        choices = setNames(sort(data$SampleName), sort(data$SampleName)))
+      showNotification("Master sample list loaded successfully.", type = "message")
+    }, error = function(e) {
+      showNotification(paste("Error loading file:", e$message), type = "error")
+    })
+  })
+
   
   # --- Display Full Sample List (for reference) ---
   output$full_sample_list_dt <- renderDT({
