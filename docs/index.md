@@ -84,9 +84,9 @@ Click on the `app.R` file in the Files pane to open it in the RStudio editor.
 
 Click the **"Run App"** button in the top-right corner of the editor pane. RStudio will launch the Shiny app in a new window or in the built-in viewer.
 
-### 5. Dismiss the Initial Error
+### 5. Dismiss the Initial Load Error
 
-The first time the app launches, you will see an error notification. This happens because the app attempts to load the master sample list from the default path on startup. Simply **dismiss the error by clicking the "x"** on the notification. You will load the sample list properly in the next step using the Settings tab.
+The first time the app launches, you may see an error notification about pop up windows. You can click the re-load button and it should open properly for the rest of the session.
 
 ---
 
@@ -96,7 +96,9 @@ The app is organized into four tabs in the left sidebar. Work through them in or
 
 ### Step 1: Settings
 
-This tab lets you configure where the app looks for its key input files.
+**_You can SKIP this step if you want to use the default master samples list._**
+
+This tab lets you configure where the app looks for its key input files. 
 
 **Path to Master Sample List CSV** — This defaults to the standard lab location (`/lustre/home/harrell_lab/scRNASeq/config_slurm/Master_Sample_List.csv`). If you are working with a different sample list, update this path to point to your own CSV file. Your CSV must follow the same column format as the master list (see [Configuration Reference](#configuration-reference) below).
 
@@ -110,8 +112,10 @@ This tab is where you choose which samples to include in the merge.
 
 **Selecting samples:**
 
+**_NOTE: You cannot select samples from the table, you have to use the dropdown._**
+
 1. Use the **"Select samples from the list"** dropdown at the top. It supports live search — start typing a sample name to filter the list. You can also click "Select All" or "Deselect All" using the buttons inside the dropdown.
-2. After highlighting your desired samples in the dropdown, click **"Add Selected Samples to Merge List"**. The selected samples will move from the dropdown into the **"Samples to be Merged"** table below.
+2. After highlighting your desired samples in the dropdown, click **"Add Selected Samples to Merge List"**. The selected samples will move from the dropdown into the **"Samples to be Merged"** table below. **NOTE: you have to click on the dropdown box again to close the list before you can see the Add Selected button.**
 3. The reference table at the bottom of the "Available Samples" box shows all samples with key metadata columns (PDX source, sex, cancer type, treatment, etc.) so you can look up details before selecting.
 
 **Managing your selection:**
@@ -194,7 +198,7 @@ After a successful submission, your output directory will contain:
 | `06_slurm_[RunID]_[Species]_[YYMMDD].sh` | The SLURM batch submission script |
 | `06_[RunID]_output.log` | Standard output log from the job (created when job runs) |
 | `06_[RunID]_error.log` | Standard error log from the job (created when job runs) |
-| Merged Seurat object | The final `.RData` or `.h5Seurat` file (created by the merge script) |
+| Merged Seurat Files | A`.cloupe`, `.RData`, and annotation csv files are output by the merge script. |
 
 ---
 
