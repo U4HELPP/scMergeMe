@@ -2,7 +2,9 @@
 
 **Author:** Amy Olex  
 **Date:** June 6, 2025  
-**Collaboration Statement:** This application was designed in collaboration with Gemini 2.5 Flash, a Google-trained large language model, to assist in bioinformatics software engineering tasks.
+**Generative AI Statement:** This application was designed in collaboration with large language models (Gemini 2.5 Flash and Claude Opus 4.6) to assist in bioinformatics software engineering tasks.
+
+## Click here for [USER Documentation Website](https://u4helpp.github.io/scMergeMe/)
 
 ---
 
